@@ -8,62 +8,64 @@ export class ContentController {
   private favoriteRepository = AppDataSource.getRepository(Favorite);
   private watchHistoryRepository = AppDataSource.getRepository(WatchHistory);
 
-  async getLiveStreams(req: Request, res: Response) {
+  async getLiveStreams(req: Request, res: Response): Promise<void> {
     try {
       const xtreamService = new XtreamService(req.user!);
-      const streams = await xtreamService.getLiveStreams();
+      const response = await xtreamService.getLiveStreams();
+      const streams = response as any[];
       
-      if (!req.user!.adult_content_enabled) {
-        // Filter out adult content
-        streams = streams.filter((stream: any) => 
-          !stream.category_name?.toLowerCase().includes('adult') &&
-          !stream.name?.toLowerCase().includes('adult')
-        );
-      }
+      const filteredStreams = !req.user!.adult_content_enabled
+        ? streams.filter(stream => 
+            !stream.category_name?.toLowerCase().includes('adult') &&
+            !stream.name?.toLowerCase().includes('adult')
+          )
+        : streams;
 
-      res.json(streams);
+      res.json(filteredStreams);
     } catch (error) {
       res.status(500).json({ error: 'Error fetching live streams' });
     }
   }
 
-  async getVodStreams(req: Request, res: Response) {
+  async getVodStreams(req: Request, res: Response): Promise<void> {
     try {
       const xtreamService = new XtreamService(req.user!);
-      const streams = await xtreamService.getVodStreams();
+      const response = await xtreamService.getVodStreams();
+      const streams = response as any[];
       
-      if (!req.user!.adult_content_enabled) {
-        streams = streams.filter((stream: any) => 
-          !stream.category_name?.toLowerCase().includes('adult') &&
-          !stream.name?.toLowerCase().includes('adult')
-        );
-      }
+      const filteredStreams = !req.user!.adult_content_enabled
+        ? streams.filter(stream => 
+            !stream.category_name?.toLowerCase().includes('adult') &&
+            !stream.name?.toLowerCase().includes('adult')
+          )
+        : streams;
 
-      res.json(streams);
+      res.json(filteredStreams);
     } catch (error) {
       res.status(500).json({ error: 'Error fetching VOD streams' });
     }
   }
 
-  async getSeriesStreams(req: Request, res: Response) {
+  async getSeriesStreams(req: Request, res: Response): Promise<void> {
     try {
       const xtreamService = new XtreamService(req.user!);
-      const series = await xtreamService.getSeriesStreams();
+      const response = await xtreamService.getSeriesStreams();
+      const series = response as any[];
       
-      if (!req.user!.adult_content_enabled) {
-        series = series.filter((show: any) => 
-          !show.category_name?.toLowerCase().includes('adult') &&
-          !show.name?.toLowerCase().includes('adult')
-        );
-      }
+      const filteredSeries = !req.user!.adult_content_enabled
+        ? series.filter(show => 
+            !show.category_name?.toLowerCase().includes('adult') &&
+            !show.name?.toLowerCase().includes('adult')
+          )
+        : series;
 
-      res.json(series);
+      res.json(filteredSeries);
     } catch (error) {
       res.status(500).json({ error: 'Error fetching series' });
     }
   }
 
-  async getSeriesInfo(req: Request, res: Response) {
+  async getSeriesInfo(req: Request, res: Response): Promise<void> {
     try {
       const { seriesId } = req.params;
       const xtreamService = new XtreamService(req.user!);
@@ -74,7 +76,7 @@ export class ContentController {
     }
   }
 
-  async getEPG(req: Request, res: Response) {
+  async getEPG(req: Request, res: Response): Promise<void> {
     try {
       const { streamId } = req.params;
       const xtreamService = new XtreamService(req.user!);
@@ -85,7 +87,7 @@ export class ContentController {
     }
   }
 
-  async addToFavorites(req: Request, res: Response) {
+  async addToFavorites(req: Request, res: Response): Promise<void> {
     try {
       const { content_id, content_type, title, poster_url } = req.body;
       
@@ -98,7 +100,8 @@ export class ContentController {
       });
 
       if (existingFavorite) {
-        return res.status(400).json({ error: 'Already in favorites' });
+        res.status(400).json({ error: 'Already in favorites' });
+        return;
       }
 
       const favorite = this.favoriteRepository.create({
@@ -116,7 +119,7 @@ export class ContentController {
     }
   }
 
-  async getFavorites(req: Request, res: Response) {
+  async getFavorites(req: Request, res: Response): Promise<void> {
     try {
       const favorites = await this.favoriteRepository.find({
         where: { user: { id: req.user!.id } },
@@ -128,7 +131,7 @@ export class ContentController {
     }
   }
 
-  async removeFromFavorites(req: Request, res: Response) {
+  async removeFromFavorites(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       await this.favoriteRepository.delete({
@@ -141,7 +144,7 @@ export class ContentController {
     }
   }
 
-  async updateWatchHistory(req: Request, res: Response) {
+  async updateWatchHistory(req: Request, res: Response): Promise<void> {
     try {
       const {
         content_id,
@@ -186,7 +189,7 @@ export class ContentController {
     }
   }
 
-  async getWatchHistory(req: Request, res: Response) {
+  async getWatchHistory(req: Request, res: Response): Promise<void> {
     try {
       const watchHistory = await this.watchHistoryRepository.find({
         where: { user: { id: req.user!.id } },
