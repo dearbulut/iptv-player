@@ -7,13 +7,14 @@ import jwt from 'jsonwebtoken';
 export class UserController {
   private userRepository = AppDataSource.getRepository(User);
 
-  async register(req: Request, res: Response) {
+  async register(req: Request, res: Response): Promise<void> {
     try {
       const { email, password, username } = req.body;
 
       const existingUser = await this.userRepository.findOne({ where: { email } });
       if (existingUser) {
-        return res.status(400).json({ error: 'Email already in use' });
+        res.status(400).json({ error: 'Email already in use' });
+        return;
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,18 +36,20 @@ export class UserController {
     }
   }
 
-  async login(req: Request, res: Response) {
+  async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
 
       const user = await this.userRepository.findOne({ where: { email } });
       if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        res.status(401).json({ error: 'Invalid credentials' });
+        return;
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        res.status(401).json({ error: 'Invalid credentials' });
+        return;
       }
 
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
