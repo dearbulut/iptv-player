@@ -1,13 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
-  id: string;
-  email: string;
-  username: string;
-  xtream_username: string | null;
-  xtream_password: string | null;
-  xtream_url: string | null;
-  is_admin: boolean;
+  xtream_username: string;
+  xtream_password: string;
+  xtream_url: string;
   adult_content_enabled: boolean;
 }
 

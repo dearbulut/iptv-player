@@ -38,11 +38,12 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export const adminAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const adminAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     await auth(req, res, () => {
       if (!req.user?.is_admin) {
-        return res.status(403).json({ error: 'Admin access required.' });
+        res.status(403).json({ error: 'Admin access required.' });
+        return;
       }
       next();
     });
