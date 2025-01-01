@@ -13,15 +13,11 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-  register: async (data: { email: string; password: string; username: string }) =>
-    api.post('/users/register', data),
-  login: async (data: { email: string; password: string }) =>
-    api.post('/users/login', data),
-  updateXtreamCredentials: async (data: {
+  loginXtream: async (data: {
     xtream_username: string;
     xtream_password: string;
     xtream_url: string;
-  }) => api.put('/users/xtream-credentials', data),
+  }) => api.post('/users/xtream-login', data),
   toggleAdultContent: async () => api.post('/users/toggle-adult-content'),
   getProfile: async () => api.get('/users/profile'),
 };
